@@ -1,0 +1,53 @@
+<html>
+
+    <script>
+
+        async function login()
+        {
+
+            let u = document.getElementById("usernameInput").value
+            let p = document.getElementById("passwordInput").value
+
+            let resp = await fetch("http://localhost:8000/api/users/" + u + "$" + p)
+            let bool = await resp.json()
+
+            if(bool == false)
+            {
+                let span = document.getElementById("incorrect")
+                span.innerText = "info is incorrect"
+            }
+            else if(bool == true)
+            {
+                window.location.href = "homePage.html"
+            }
+
+        }
+    
+    </script>
+
+    <body>
+        
+        <center>
+            <h1>Factory Managment Tool</h1>
+            Enter your login info below to enter the system: </br></br>
+
+            <div style="border: 1 px;
+                        border-style: solid;
+                        border-radius: 10px;
+                        border-color: gray;
+                        background-color: lightgray;
+                        width: 10%;">
+                        </br>
+            <input type="text" placeholder="Username" id="usernameInput"></br></br>
+            <input type="password" placeholder="Password" id="passwordInput"></br></br>
+            <input type="button" value="Login" onclick="login()"></br></br>
+            </div></br>
+
+            <h3 style="color: red;" id="incorrect"></h3>
+
+        </center>
+
+
+    </body>
+
+</html>

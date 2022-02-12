@@ -1,0 +1,86 @@
+<html>
+
+    <script>
+
+        async function getData()
+        {
+            let shiftsResp = await fetch("http://localhost:8000/api/shifts/")
+            let shifts = await shiftsResp.json()
+
+            let empResp = await fetch("http://localhost:8000/api/employees/")
+            let employees = await empResp.json()
+
+            let employeeShiftsResp = await fetch("http://localhost:8000/api/employeeshifts/")
+            let employeeShifts = await employeeShiftsResp.json()
+
+            shifts.forEach(shift => {
+                
+                let dateObj = document.createElement("td")
+                dateObj.innerText = shift.shiftDate
+
+                let startObj = document.createElement("td")
+                startObj.innerText = shift.startTime
+
+                let endObj = document.createElement("td")
+                endObj.innerText = shift.endTime
+
+                let trObj = document.createElement("tr")
+
+                trObj.appendChild(dateObj)
+                trObj.appendChild(startObj)
+                trObj.appendChild(endObj)
+
+
+                employeeShifts.forEach(x => 
+                {
+                    if(shift._id == x.shiftID)
+                    {
+                        let employeeObj = document.createElement("li")
+                        let employeeLink = document.createElement("a")
+                        fName = employees.find(y => y._id == x.employeeID).firstName
+                        lName = employees.find(y => y._id == x.employeeID).lastName
+                        employeeLink.innerText = fName + " " + lName
+                        employeeLink.href="../employees/updateEmployee.html?employeeid=" + employees.find(y => y._id == x.employeeID)._id
+                        employeeObj.appendChild(employeeLink)
+                        
+                        let employeeListObj = document.createElement("ul")
+                        employeeListObj.appendChild(employeeObj)
+                        trObj.appendChild(employeeListObj)
+                    }
+                })
+
+
+
+                document.getElementById("shiftsTable").appendChild(trObj)
+
+            });
+        }
+
+        function addShift()
+    {
+        window.location.href = "addShift.html"
+    }
+
+    </script>
+
+    <body onload="getData()">
+        
+        <center>
+            <h1>Shifts</h1>
+            <table id="shiftsTable" style="border-style: solid;
+                                        border-color: black;
+                                        border-width: 2px;">
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Employees</th>
+            </table></br>
+            <input type="button" value="Add New Shift" onclick="addShift()">
+    
+            </br></br>
+            <a href="../homePage.html">Back</a>
+            </center>
+
+    </body>
+
+</html>

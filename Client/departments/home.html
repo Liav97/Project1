@@ -1,0 +1,101 @@
+<html>
+
+    <script>
+
+    function addDepartment()
+    {
+        window.location.href = "addDepartment.html"
+    }
+
+    async function getDataFromServer()
+    {
+        let depresp = await fetch("http://localhost:8000/api/departments/")
+        let data = await depresp.json()
+
+        let empresp = await fetch("http://localhost:8000/api/employees/")
+        let employees = await empresp.json()
+
+
+        data.forEach(data => {
+
+            let depNameObj = document.createElement("td")
+            depNameObj.innerText = data.departmentName
+
+            let depManObj = document.createElement("td")
+
+            if(data.manager == 0)
+            {
+                //do nothing
+            }
+            else
+            {
+                let managerfirstName = employees.find(x => x._id == data.manager).firstName
+                let managerlastName = employees.find(x => x._id == data.manager).lastName
+                let m = managerfirstName + " " + managerlastName
+                depManObj.innerText = m
+            }
+
+
+            let updateObj = document.createElement("td")
+            let updateLink = document.createElement("a")
+            updateLink.innerText = "Update"
+            updateLink.href = "updateDepartment.html?departmentid=" + data._id
+            updateObj.appendChild(updateLink)
+
+            let arr = []
+
+            employees.forEach(emp => {
+                if(emp.department == data._id)
+                {
+                    arr.push(emp)
+                }
+            });
+
+            let trObj = document.createElement("tr")
+
+            if(arr.length == 0)
+            {
+                let deleteObj = document.createElement("td")
+                let deleteLink = document.createElement("a")
+                deleteLink.innerText = "Delete"
+                deleteLink.href = "deleteDepartment.html?departmentid=" + data._id
+                deleteObj.appendChild(deleteLink)
+                trObj.appendChild(depNameObj)
+                trObj.appendChild(depManObj)
+                trObj.appendChild(updateObj)
+                trObj.appendChild(deleteObj)
+            }
+            else
+            {
+                trObj.appendChild(depNameObj)
+                trObj.appendChild(depManObj)
+                trObj.appendChild(updateObj) 
+            }
+
+            document.getElementById("dptTable").appendChild(trObj)
+
+        });
+
+
+
+    }
+
+    </script>
+
+    <body onload="getDataFromServer()">
+        <center>
+        <h1>Departments</h1>
+        <table id="dptTable" style="border-style: solid;
+                                    border-color: black;
+                                    border-width: 2px;">
+            <th>Department</th>
+            <th>Manager</th>
+        </table></br>
+        <input type="button" value="Add New Department" onclick="addDepartment()">
+
+        </br></br>
+        <a href="../homePage.html">Back</a>
+        </center>
+    </body>
+
+</html>

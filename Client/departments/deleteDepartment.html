@@ -1,0 +1,71 @@
+<html>
+
+    <script>
+
+        async function getData()
+        {
+            const params = new URLSearchParams (window.location.search)
+            let id = params.get("departmentid")
+
+            let depresp = await fetch("http://localhost:8000/api/departments/" + id)
+            let data = await depresp.json()
+
+            let departmentNameSpan = document.getElementById("departmentName")
+            departmentNameSpan.innerText = data.departmentName
+
+        }
+
+        function returnToHome()
+        {
+            window.location.href = "home.html"
+        }
+
+        async function deleteDepartment()
+        {
+            const params = new URLSearchParams (window.location.search)
+            let id2 = params.get("departmentid")
+
+            let depresp = await fetch("http://localhost:8000/api/departments/" + id2)
+            let data = await depresp.json()
+            
+            let confirmation = data._id.substring(0, 5)
+            let confirmationInput = prompt("In order to delete this department, please type in the following text: " + confirmation)
+            if(confirmation == confirmationInput)
+            {
+                let fetchParams = { method : 'DELETE',
+                                body : JSON.stringify(),
+                                headers : {"Content-type" : "application/json"}
+                                }
+
+                let resp = await fetch("http://localhost:8000/api/departments/" + id2, fetchParams);
+                let data = await resp.json();
+
+                alert("The department has been deleted. You are now being redirected to the home page.") 
+                window.location.href = "home.html"               
+            }
+            else
+            {
+                alert("The text you entered is inncorrect.")
+            }
+        }
+
+    </script>
+
+    <body onload="getData()">
+        <center>
+        <h1 style="color: red;">WARNING!</h1>
+        <h4>By clicking on the "Yes" button, you will be permenantly deleting the following department:</h2>
+        <span id="departmentName"></span>
+        <h4>
+            This action cannot be undone. </br>
+            Are you sure you want to continue?</h4>
+
+        <input type="button" value="No, Take me to safety" id="cancel" onclick="returnToHome()"> <input type="button" value="Yes" style="background-color: red; color: white;" id="ok" onclick="deleteDepartment()">
+        </br></br>    
+
+        <a href="./home.html">Back</a>
+
+    </center>
+    </body>
+
+</html>

@@ -1,0 +1,110 @@
+<html>
+
+    <script>
+
+        async function getData()
+        {
+        
+            let depResp = await fetch("http://localhost:8000/api/departments/")
+            let depData = await depResp.json()
+
+            let empResp = await fetch("http://localhost:8000/api/employees/")
+            let empData = await empResp.json()
+
+            const params = new URLSearchParams (window.location.search)
+            id = params.get("departmentid")
+
+            document.getElementById("idInput").value = id
+            /////////
+            let arr = []
+
+            empData.forEach(emp => {
+                if(emp.department == id)
+                {
+                    arr.push(emp)
+                }
+            });
+
+            if(arr.length > 0)
+            {
+                arr.forEach(emp => {
+
+                let empfName = emp.firstName
+                let emplName = emp.lastName
+                let empfull = empfName + " " + emplName
+
+                let empObj = document.createElement("option")
+                empObj.innerText = empfull
+                empObj.value = emp._id
+
+                document.getElementById("managerInput").appendChild(empObj)
+
+                })
+            }
+            else
+            {
+                let nullObj = document.createElement("option")
+                nullObj.value = 0
+                document.getElementById("managerInput").appendChild(nullObj)
+            }
+            
+            /////////
+            let dep = depData.find(x => x._id == id)
+            document.getElementById("nameInput").value = dep.departmentName
+            
+        }
+
+        async function updateDepartment()
+        {
+            let checkbox = document.getElementById("checkbox").checked
+
+            idInput = document.getElementById("idInput").value
+            nameInput = document.getElementById("nameInput").value
+            managerInput = document.getElementById("managerInput").value
+
+            sentData = {departmentName : nameInput , manager : managerInput}
+
+            let fetchParams = { method : 'PUT',
+                                body : JSON.stringify(sentData),
+                                headers : {"Content-type" : "application/json"}
+                                }
+
+            let span = document.getElementById("message")
+            if(nameInput == 0)
+            {
+                span.innerText = "You must enter a valid department name"
+            }
+            else if(checkbox == false)
+            {
+                span.innerText = "You must approve information integrity"
+            }
+            else
+            {
+                span.innerText = ""
+                let resp = await fetch("http://localhost:8000/api/departments/" + idInput, fetchParams);
+                let data = await resp.json();
+
+                alert("Department was updated successfully. By clicking OK, you will be redirected to the Home Page.")
+                window.location.href = "home.html"
+            }
+
+        }
+
+    </script>
+
+    <body onload="getData()">
+        <center>
+            <h1>Update a Department</h1>
+                <input type="text" disabled="yes" id="idInput">
+                <input type="text" placeholder="Department Name" id="nameInput">
+                <select name="Manager" id="managerInput">
+                    <option value="" disabled="yes">Manager</option>
+                </select></br></br>
+                <input type="checkbox" id="checkbox"> By clicking the checkbox, I've verify the data I entered is correct </br></br>
+                <input type="button" value="Update Department" onclick="updateDepartment()"></br>
+                <h3 style="color: red;" id="message"></h3></br></br>
+                <a href="./home.html">Back</a>
+                </center>
+    </body>
+
+</html>

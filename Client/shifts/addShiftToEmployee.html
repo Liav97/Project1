@@ -1,0 +1,87 @@
+<html>
+
+    <script>
+
+        async function getData()
+        {
+            const params = new URLSearchParams (window.location.search)
+            id = params.get("employeeid")
+
+            let empResp = await fetch("http://localhost:8000/api/employees/" + id)
+            let employee = await empResp.json()
+
+            let shiftsResp = await fetch("http://localhost:8000/api/shifts/")
+            let shifts = await shiftsResp.json()
+
+            let depResp = await fetch("http://localhost:8000/api/departments/")
+            let departments = await depResp.json()
+
+            document.getElementById("nameInput").value = employee.firstName + " " + employee.lastName
+            document.getElementById("departmentInput").value = departments.find(x => x._id == employee.department).departmentName
+            shifts.forEach(shift => {
+                let shiftObj = document.createElement("option")
+                shiftObj.innerText = shift.shiftDate + ", " + shift.startTime + "-" + shift.endTime
+                shiftObj.value = shift._id
+
+                document.getElementById("shiftInput").appendChild(shiftObj)
+            });
+        }
+
+        async function addShiftToEmployee()
+        {
+
+            let checkbox = document.getElementById("checkbox").checked
+
+            const params = new URLSearchParams (window.location.search)
+            id = params.get("employeeid")
+
+            let shiftInput = document.getElementById("shiftInput").value
+
+            let sentData = {employeeID : id , shiftID : shiftInput}
+
+            let fetchParams = { method : 'POST',
+                                body : JSON.stringify(sentData),
+                                headers : {"Content-type" : "application/json"}
+                                }
+
+            let span = document.getElementById("message")
+
+            if(checkbox == false)
+            {
+                span.innerText = "You must approve information integrity"
+            }
+            else
+            {
+                span.innerText = ""
+                let resp = await fetch("http://localhost:8000/api/employeeShifts/", fetchParams);
+                let data = await resp.json();
+
+                alert("Shift was added successfully. By clicking OK, you will be redirected to the Home Page.")
+                window.location.href = "home.html"
+            }
+        }
+
+    </script>
+
+    <body onload="getData()">
+        
+        <center>
+            <h1>Assign Employee to Shift</h1>
+
+            <input type="text" id="nameInput" disabled="yes">
+            <input type="text" id="departmentInput" disabled="yes">
+            <select id="shiftInput"></select>
+
+            </br></br>
+
+            <input type="checkbox" id="checkbox"> By clicking the checkbox, I verify the data I entered is correct </br></br>
+
+            <input type="button" value="Add Employee" onclick="addShiftToEmployee()"></br>
+            <h3 style="color: red;" id="message"></h3></br></br>
+
+            <a href="../employees/home.html">Back</a>
+            </center>
+
+    </body>
+
+</html>

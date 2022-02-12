@@ -1,0 +1,96 @@
+<html>
+
+    <script>
+
+        function getYear()
+        {
+            let currentYear = new Date().getFullYear()
+            document.getElementById("employmentYearInput").value = currentYear
+        }
+
+        async function getDepartments()
+        {
+            let depResp = await fetch("http://localhost:8000/api/departments/")
+            let departments = await depResp.json()
+
+            const params = new URLSearchParams (window.location.search)
+            let id = params.get("employeeid")
+
+            departments.forEach(dep => {
+                let depObj = document.createElement("option")
+                depObj.innerText = dep.departmentName
+                depObj.value = dep._id
+
+                document.getElementById("departmentInput").appendChild(depObj)
+
+                
+                
+            });
+        }
+
+        async function addNewEmployee()
+        {
+            let checkbox = document.getElementById("checkbox").checked
+
+            let fnameInput = document.getElementById("fnameInput").value
+            let lnameInput = document.getElementById("lnameInput").value
+            let employmentYearInput = document.getElementById("employmentYearInput").value
+            let departmentInput = document.getElementById("departmentInput").value
+
+            let sentData = {firstName : fnameInput , lastName : lnameInput , employmentYear : employmentYearInput , department : departmentInput}
+
+            let fetchParams = { method : 'POST',
+                                body : JSON.stringify(sentData),
+                                headers : {"Content-type" : "application/json"}
+                                }
+
+            let span = document.getElementById("message")
+
+            let currentYear = new Date().getFullYear()
+
+            if(fnameInput == 0)
+            {
+                span.innerText = "You must enter a valid first name"
+            }
+            else if(lnameInput == 0)
+            {
+                span.innerText = "You must enter a valid last Name"
+            }
+            else if(isNaN(employmentYearInput) || employmentYearInput > currentYear || employmentYearInput < 1997 || employmentYearInput == "")
+            {
+                span.innerText = "You must enter a valid year"
+            }
+            else if(checkbox == false)
+            {
+                span.innerText = "You must approve information integrity"
+            }
+            else
+            {
+                span.innerText = ""
+                let resp = await fetch("http://localhost:8000/api/employees/", fetchParams);
+                let data = await resp.json();
+
+                alert("Employee was added successfully. By clicking OK, you will be redirected to the Home Page.")
+                window.location.href = "home.html"
+            }
+        }
+
+    </script>
+
+    <body onload="getYear() , getDepartments()">
+        <center>
+            <h1>Add an Employee</h1>
+                <input type="text" placeholder="First Name" id="fnameInput">
+                <input type="text" placeholder="Last Name" id="lnameInput">
+                <input type="text" placeholder="Employment Year" id="employmentYearInput">
+                <select name="Department" id="departmentInput">
+
+                </select></br></br>
+                <input type="checkbox" id="checkbox"> By clicking the checkbox, I've verify the data I entered is correct </br></br>
+                <input type="button" value="Add Employee" onclick="addNewEmployee()"></br>
+                <h3 style="color: red;" id="message"></h3></br></br>
+                <a href="./home.html">Back</a>
+                </center>
+    </body>
+
+</html>

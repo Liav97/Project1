@@ -1,0 +1,78 @@
+<html>
+
+    <script>
+
+        async function addShift()
+        {
+            let checkbox = document.getElementById("checkbox").checked
+
+            let dateInput = document.getElementById("dateInput").value
+            let startInput = document.getElementById("startInput").value
+            let endInput = document.getElementById("endInput").value
+
+            let sentData = {shiftDate : dateInput , startTime : startInput , endTime : endInput}
+
+            let fetchParams = { method : 'POST',
+                                body : JSON.stringify(sentData),
+                                headers : {"Content-type" : "application/json"}
+                                }
+
+            let span = document.getElementById("message")
+
+            if(dateInput == "")
+            {
+                span.innerText = "You must enter a valid date"
+            }
+            else if(startInput == "")
+            {
+                span.innerText = "You must enter a valid start time"
+            }
+            else if(endInput == "")
+            {
+                span.innerText = "You must enter a valid end time"
+            }
+            else if(checkbox == false)
+            {
+                span.innerText = "You must approve information integrity"
+            }
+            else
+            {
+                span.innerText = ""
+                let resp = await fetch("http://localhost:8000/api/shifts/", fetchParams);
+                let data = await resp.json();
+
+                alert("Shift was added successfully. By clicking OK, you will be redirected to the Home Page.")
+                window.location.href = "home.html"
+            }
+
+
+        }
+
+    </script>
+
+    <body >
+        <center>
+            <h1>Add a Shift</h1>
+
+                <table>
+                    <tr>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                    </tr>
+                    <tr>
+                        <td><input type="date" id="dateInput"></td>
+                        <td><input type="time" id="startInput"></td>
+                        <td><input type="time" id="endInput"></td>
+                    </tr>
+                </table>
+
+                </br></br>
+                <input type="checkbox" id="checkbox"> By clicking the checkbox, I've verify the data I entered is correct </br></br>
+                <input type="button" value="Add Shift" onclick="addShift()"></br>
+                <h3 style="color: red;" id="message"></h3></br></br>
+                <a href="./home.html">Back</a>
+                </center>
+    </body>
+
+</html>

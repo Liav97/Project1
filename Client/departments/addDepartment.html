@@ -1,0 +1,82 @@
+<html>
+
+    <script>
+
+        async function getEmployees()
+        {
+            let resp = await fetch("http://localhost:8000/api/employees/")
+            let employees = await resp.json()
+
+           for(i = 0; i < employees.length; i++)
+           {
+                let empfName = employees[i].firstName
+                let emplName = employees[i].lastName
+                let emp = empfName + " " + emplName
+                
+                let empObj = document.createElement("option")
+                empObj.value = employees[i]._id
+                empObj.innerText = emp
+
+                document.getElementById("managerInput").appendChild(empObj)
+           }
+        }
+
+        async function addDepartment()
+        {
+            let checkbox = document.getElementById("checkbox").checked
+
+            let nameData = document.getElementById("nameInput").value
+            let manData = document.getElementById("managerInput").value
+            let sentData = {
+                departmentName : nameData,
+                manager : manData
+            }
+
+            let fetchParams = { method : 'POST',
+                                body : JSON.stringify(sentData),
+                                headers : {"Content-type" : "application/json"}
+                                }
+
+            let span = document.getElementById("message")
+            if(nameData == 0)
+            {
+                span.innerText = "You must enter a valid department name"
+            }
+            else if(manData == 0)
+            {
+                span.innerText = "You must assign a manager to a new department"
+            }
+            else if(checkbox == false)
+            {
+                span.innerText = "You must approve information integrity"
+            }
+            else
+            {
+                span.innerText = ""
+
+                let resp = await fetch("http://localhost:8000/api/departments/", fetchParams);
+                let data = await resp.json();
+
+                alert("Department was added successfully. By clicking OK, you will be redirected to the Home Page.")
+                window.location.href = "home.html"
+            }
+        }
+
+    </script>
+
+    <body onload="getEmployees()">
+        <center>
+    <h1>Add a New Department</h1>
+        <input type="text" placeholder="Department Name" id="nameInput">
+        <select name="Manager" id="managerInput">
+            <option value=""></option>
+        </select></br></br>
+        <input type="checkbox" id="checkbox"> By clicking the checkbox, I've verify the data I entered is correct </br></br>
+        <input type="button" value="Add New Department" onclick="addDepartment()"></br>
+        <h3 style="color: red;" id="message"></h3></br></br>    
+
+        <a href="./home.html">Back</a>
+        </center>
+    </body>
+
+</html>

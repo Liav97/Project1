@@ -1,0 +1,206 @@
+<html>
+
+    <script>
+
+        async function getDataFromServer()
+        {
+        let depResp = await fetch("http://localhost:8000/api/departments/")
+        let departments = await depResp.json()
+
+        let empResp = await fetch("http://localhost:8000/api/employees/")
+        let employees = await empResp.json()
+
+        let shiftsResp = await fetch("http://localhost:8000/api/shifts/")
+        let shifts = await shiftsResp.json()
+
+        let empShiftsResp = await fetch("http://localhost:8000/api/employeeshifts/")
+        let employeeShifts = await empShiftsResp.json()
+
+        let mainTable = document.getElementById("mainTable")
+
+        departments.forEach(dep => {
+
+            let arr = []
+            employees.forEach(x => {
+                if(x.department == dep._id)
+                {
+                    arr.push(x)
+                }
+            })
+
+            let depDiv = document.createElement("div")
+
+            let depHeader = document.createElement("h1")
+            depHeader.innerText = dep.departmentName
+
+            let depTable = document.createElement("table")
+
+            let empInfoHeader = document.createElement("tr")
+            
+            let empName = document.createElement("th")
+            let empYear = document.createElement("th")
+            let empShifts = document.createElement("th")
+            empName.innerText = "Employee Name"
+            empYear.innerText = "Employment Year"
+            empShifts.innerText = "Shifts"
+
+            empInfoHeader.appendChild(empName)
+            empInfoHeader.appendChild(empYear)
+            empInfoHeader.appendChild(empShifts)
+
+            depTable.appendChild(empInfoHeader)
+            arr.forEach(x => {
+                let fullName = x.firstName + " " + x.lastName
+                let year = x.employmentYear
+
+                let nameObj = document.createElement("td")
+                nameObj.innerText = fullName
+
+                let yearObj = document.createElement("td")
+                yearObj.innerText = year
+
+                let shiftsList = document.createElement("ul")
+
+                employeeShifts.forEach(es => 
+                {
+                    if(es.employeeID == x._id)
+                    {
+                        let shift = shifts.find(y => y._id == es.shiftID)
+                        let shiftObj = document.createElement("li")
+                        shiftObj.innerText = shift.shiftDate + " " + shift.startTime + "-" + shift.endTime
+                        shiftsList.appendChild(shiftObj)
+
+                    }
+                })
+
+
+                let updateObj = document.createElement("td")
+                let updateLink = document.createElement("a")
+                updateLink.innerText = "Update"
+                updateLink.href = "updateEmployee.html?employeeid=" + x._id
+                updateObj.appendChild(updateLink)
+
+                let deleteObj = document.createElement("td")
+                let deleteLink = document.createElement("a")
+                deleteLink.innerText = "Delete"
+                deleteLink.href = "deleteEmployee.html?employeeid=" + x._id
+                deleteObj.appendChild(deleteLink)
+
+                let addShiftObj = document.createElement("td")
+                let addShiftLink = document.createElement("a")
+                addShiftLink.innerText = "Add Shift"
+                addShiftLink.href = "../shifts/addShiftToEmployee.html?employeeid=" + x._id
+                addShiftObj.appendChild(addShiftLink)
+
+                let empTr = document.createElement("tr")
+                empTr.appendChild(nameObj)
+                empTr.appendChild(yearObj)
+                empTr.appendChild(shiftsList)
+                empTr.appendChild(updateObj)
+                empTr.appendChild(deleteObj)
+                empTr.appendChild(addShiftObj)
+
+                depTable.appendChild(empTr)
+
+            })
+
+            depDiv.appendChild(depHeader)
+            depDiv.appendChild(depTable)
+            depDiv.style.borderStyle="solid"
+            depDiv.style.borderColor="black"
+            
+            let divTd = document.createElement("tr")
+            divTd.appendChild(depDiv)
+
+            mainTable.appendChild(divTd)
+            
+        })
+        
+    }
+
+    function addNewEmployee()
+    {
+        window.location.href = "addNewEmployee.html"
+    }
+
+    function openSearchBox()
+    {
+
+        let searchBox = document.getElementById("searchBox")
+        if(searchBox.style.display == "none")
+        {
+            document.getElementById("searchBoxButton").value = "Close Search Box"
+            searchBox.style.display ="block"
+            searchBy()
+            
+        }
+        else
+        {
+            document.getElementById("searchBoxButton").value = "Search Employee"
+            searchBox.style.display ="none"
+        }
+
+    }
+
+    function searchBy(src)
+    {
+
+        let param = src.value
+
+        if(param == "searchByfName")
+        {
+            document.getElementById("searchText").placeholder = "First Name"
+            return param
+        }
+        else if(param == "searchBylName")
+        {
+            document.getElementById("searchText").placeholder = "Last Name"
+            return param
+        }
+        else if(param == "searchByDepartment")
+        {
+            document.getElementById("searchText").placeholder = "Department"
+            return param
+        }
+    }
+
+
+
+
+
+
+
+
+    </script>
+
+    <body onload="getDataFromServer()">
+        <center>
+
+            <h1>Employees</h1>
+            <input type="button" value="Add New Employee" onclick="addNewEmployee()">
+            </br></br>
+
+            <span>
+                <h3>Search</h3>
+                Search By:
+                <input type="radio" id="searchByfName" name="searchBy" value="searchByfName" onchange="searchBy(this)">
+                <label for="searchByfName">First Name</label>
+                <input type="radio" id="searchBylName" name="searchBy" value="searchBylName" onchange="searchBy(this)">
+                <label for="searchBylName">Last Name</label>
+                <input type="radio" id="searchByDepartment" name="searchBy" value="searchByDepartment" onchange="searchBy(this)">
+                <label for="searchByDepartment">Department</label></br></br>
+                <input type="text" id="searchText" placeholder="Choose a search parameter">
+                <input type="button" value="Search" onclick="search()">
+
+
+            </span></br></br>
+
+            <table id="mainTable">
+
+            </table></br>
+            <a href="../homePage.html">Back</a>
+
+        </center>
+    </body>
+
+</html>

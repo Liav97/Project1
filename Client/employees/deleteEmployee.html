@@ -1,0 +1,95 @@
+<html>
+
+    <script>
+
+        async function getData()
+        {
+            const params = new URLSearchParams (window.location.search)
+            let id = params.get("employeeid")
+
+            let empResp = await fetch("http://localhost:8000/api/employees/" + id)
+            let emp = await empResp.json()
+
+            let depResp = await fetch("http://localhost:8000/api/departments/" + emp.department)
+            let data = await depResp.json()
+
+            let dep = data.departmentName
+            let fullname = emp.firstName + " " + emp.lastName
+
+            let employeeDataSpan = document.getElementById("employeeData")
+            employeeDataSpan.innerText = fullname + " (" + dep + ")"
+
+        }
+
+        function returnToHome()
+        {
+            window.location.href = "home.html"
+        }
+
+        async function deleteEmployee()
+        {
+            const params = new URLSearchParams (window.location.search)
+            let id2 = params.get("employeeid")
+
+            let depresp = await fetch("http://localhost:8000/api/employees/" + id2)
+            let data = await depresp.json()
+            
+            let empShiftResp = await fetch("http://localhost:8000/api/employeeshifts/")
+            let empShiftData = await empShiftResp.json()
+            
+            let confirmation = data._id.substring(0, 5)
+            let confirmationInput = prompt("In order to delete this employee, please type in the following text: " + confirmation)
+            if(confirmation == confirmationInput)
+            {
+                let fetchParams = { method : 'DELETE',
+                                body : JSON.stringify(),
+                                headers : {"Content-type" : "application/json"}
+                                }
+
+                empShiftData.forEach(x => {
+                    if(x.employeeID == id2)
+                    {
+                        deleteShift(x._id, fetchParams)
+                    }
+                });
+
+                let resp = await fetch("http://localhost:8000/api/employees/" + id2, fetchParams);
+                let data = await resp.json();
+
+                alert("The employee has been deleted. You are now being redirected to the home page.") 
+                window.location.href = "home.html"        
+                
+
+            }
+            else
+            {
+                alert("The text you entered is inncorrect.")
+            }
+        }
+
+        async function deleteShift(id, fetchParams)
+        {
+            let resp = await fetch("http://localhost:8000/api/employeeshifts/" + id, fetchParams);
+            let data = await resp.json();
+        }
+
+    </script>
+
+    <body onload="getData()">
+        <center>
+        <h1 style="color: red;">WARNING!</h1>
+        <h4>By clicking on the "Yes" button, you will be permenantly deleting the following employee:</h2>
+        <span id="employeeData"></span>
+        <h4>
+            This action cannot be undone. </br>
+            Are you sure you want to continue?</h4>
+
+        <input type="button" value="No, Take me to safety" id="cancel" onclick="returnToHome()"> <input type="button" value="Yes" style="background-color: red; color: white;" id="ok" onclick="deleteEmployee()">
+        </br></br>    
+
+        <a href="./home.html">Back</a>
+
+    </center>
+    </body>
+
+</html>
